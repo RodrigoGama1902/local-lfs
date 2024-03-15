@@ -25,7 +25,7 @@ class Config:
             raise ValueError("dest_path is required")
 
 
-def load_toml(root: Path) -> dict[str, Any]:
+def _load_toml(root: Path) -> dict[str, Any]:
     path = root / "pyproject.toml"
     if not path.exists():
         return {}
@@ -35,3 +35,15 @@ def load_toml(root: Path) -> dict[str, Any]:
             return toml.load(f)["tool"]["local_lfs"]
         except KeyError:
             return {}
+
+
+def load_config(args: argparse.Namespace) -> Config:
+
+    src_path = Path(args.src_path) if args.src_path else Path.cwd()
+    toml_data = _load_toml(src_path)
+
+    config = Config(**toml_data)
+    config.update_from_args(args)
+    config.check()
+
+    return config
