@@ -10,3 +10,4 @@
 # Low Priority
 
 - [ ] Create documentation
+- [ ] Create a colorfull output for the status command
