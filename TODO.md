@@ -1,7 +1,12 @@
 # High Priority
 
+- [ ] The current tests are testing the CLI and execution commands, this should be separated
+    - [ ] CLI tests
+    - [ ] Execution tests
+
+- [ ] Create config load test, to test arguments and pyproject.toml settings
 - [ ] Finish the local_lfs status feature
-- [ ] Implement pyproject.toml settings, so the args will not be necessary
+- [x] Implement pyproject.toml settings, so the args will not be necessary
 
 # Medium Priority
 
