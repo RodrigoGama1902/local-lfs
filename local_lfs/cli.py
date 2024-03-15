@@ -77,5 +77,5 @@ def _add_common_arguments(parser: argparse.ArgumentParser) -> None:
         "-i",
         nargs="+",
         default=[],
-        help="Include paths for the operation (default: none)",
+        help="Include paths for the operation (Optional, default: none)",
     )
