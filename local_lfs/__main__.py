@@ -1,5 +1,4 @@
 import argparse
-import sys
 import toml
 
 from .core import push, pull, status
@@ -39,20 +38,18 @@ def _load_toml(root: Path) -> dict[str, Any]:
             return {}
 
 
-def push_cmd(config: Config) -> None:
-    print("Pushing changes to remote repository...")
+def _push_cmd(config: Config) -> None:
     push(Path(config.src_path), Path(config.dest_path), config.include)
 
 
-def pull_cmd(config: Config) -> None:
-    print("Pulling changes from remote repository...")
+def _pull_cmd(config: Config) -> None:
     pull(
         Path(config.src_path),
         Path(config.dest_path),
     )
 
 
-def status_cmd(config: Config) -> None:
+def _status_cmd(config: Config) -> None:
     status(
         Path(config.src_path),
         Path(config.dest_path),
@@ -61,75 +58,29 @@ def status_cmd(config: Config) -> None:
 
 
 def main() -> None:
-
     parser = argparse.ArgumentParser(
-        description="Simple CLI like GitHub with push and pull commands"
+        description="Local LFS, a simple local git-lfs alternative"
     )
     subparsers = parser.add_subparsers()
 
-    push_parser = subparsers.add_parser(
-        "push", help="Push changes to remote repository"
-    )
-    push_parser.add_argument(
-        "src_path",
-        nargs="?",
-        help="Source path of the repository (default: current directory)",
-    )
-    push_parser.add_argument(
-        "--dest_path", "-d", help="Destination path of the repository"
-    )
-    push_parser.add_argument(
-        "--include",
-        "-i",
-        nargs="+",
-        default=[],
-        help="Include paths for the operation (default: none)",
-    )
-    push_parser.set_defaults(func=push_cmd)
+    # Define push command parser
+    push_parser = subparsers.add_parser("push", help="Push changes to local repository")
+    _add_common_arguments(push_parser)
+    push_parser.set_defaults(func=_push_cmd)
 
+    # Define pull command parser
     pull_parser = subparsers.add_parser(
-        "pull", help="Pull changes from remote repository"
+        "pull", help="Pull changes from local repository"
     )
-    pull_parser.add_argument(
-        "src_path",
-        nargs="?",
-        help="Source path of the repository (default: current directory)",
-    )
-    pull_parser.add_argument(
-        "--dest_path", "-d", help="Destination path of the repository"
-    )
-    pull_parser.add_argument(
-        "--include",
-        "-i",
-        nargs="+",
-        default=[],
-        help="Include paths for the operation (default: none)",
-    )
-    pull_parser.set_defaults(func=pull_cmd)
+    _add_common_arguments(pull_parser)
+    pull_parser.set_defaults(func=_pull_cmd)
 
+    # Define status command parser
     status_parser = subparsers.add_parser(
-        "status", help="Pull changes from remote repository"
+        "status", help="check the status of the local repository"
     )
-    status_parser.add_argument(
-        "src_path",
-        nargs="?",
-        help="Source path of the repository (default: current directory)",
-    )
-    status_parser.add_argument(
-        "--dest_path", "-d", help="Destination path of the repository"
-    )
-    status_parser.add_argument(
-        "--include",
-        "-i",
-        nargs="+",
-        default=[],
-        help="Include paths for the operation (default: none)",
-    )
-    status_parser.set_defaults(func=status_cmd)
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
+    _add_common_arguments(status_parser)
+    status_parser.set_defaults(func=_status_cmd)
 
     args = parser.parse_args()
 
@@ -141,6 +92,22 @@ def main() -> None:
     config.check()
 
     args.func(config)
+
+
+def _add_common_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "src_path",
+        nargs="?",
+        help="Source path of the repository (default: current directory)",
+    )
+    parser.add_argument("--dest_path", "-d", help="Destination path of the repository")
+    parser.add_argument(
+        "--include",
+        "-i",
+        nargs="+",
+        default=[],
+        help="Include paths for the operation (default: none)",
+    )
 
 
 if __name__ == "__main__":
