@@ -1,15 +1,5 @@
 [tool.pyright]
 
-reportMissingImports = true
-reportMissingTypeStubs = true
-reportGeneralTypeIssues = "error"
-reportOptionalMemberAccess = true
-reportOptionalSubscript = true
-reportUnknownVariableType = false
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-reportAttributeAccessIssue = false
-
 pythonVersion = "3.11"
 pythonPlatform = "Windows"
 
@@ -17,3 +7,9 @@ pythonPlatform = "Windows"
 [tool.pytest.ini_options]
 log_cli=true
 log_level="INFO"
+
+[tool.local_lfs]
+dest_path= "C:\\coding\\rodrigogama1902\\local-lfs\\LFS"
+include=["tests/fixtures/"]
+
+

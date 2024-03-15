@@ -1,42 +1,67 @@
 import argparse
 import sys
-
+import toml
 
 from .core import push, pull, status
 from pathlib import Path
 
-
-def print_args(args: argparse.Namespace) -> None:
-    print("Arguments used:")
-    for arg, value in vars(args).items():
-        print(f"{arg}: {value}")
+from dataclasses import dataclass, field
+from typing import List, Any
 
 
-def push_cmd(args: argparse.Namespace) -> None:
-    print_args(args)
+@dataclass
+class Config:
+    dest_path: str = field(default="")
+    src_path: str = field(default=".")
+    include: List[str] = field(default_factory=list)
+
+    def update_from_args(self, args: argparse.Namespace) -> None:
+        for key, value in vars(args).items():
+            if value is not None:
+                setattr(self, key, value)
+
+    def check(self) -> None:
+        if not self.src_path:
+            raise ValueError("src_path is required")
+        if not self.dest_path:
+            raise ValueError("dest_path is required")
+
+
+def _load_toml(root: Path) -> dict[str, Any]:
+    path = root / "pyproject.toml"
+    if not path.exists():
+        return {}
+
+    with open(path, "r") as f:
+        try:
+            return toml.load(f)["tool"]["local_lfs"]
+        except KeyError:
+            return {}
+
+
+def push_cmd(config: Config) -> None:
     print("Pushing changes to remote repository...")
-    push(Path(args.src_path), Path(args.dest_path), args.include_path)
+    push(Path(config.src_path), Path(config.dest_path), config.include)
 
 
-def pull_cmd(args: argparse.Namespace) -> None:
-    print_args(args)
+def pull_cmd(config: Config) -> None:
     print("Pulling changes from remote repository...")
     pull(
-        Path(args.src_path),
-        Path(args.dest_path),
+        Path(config.src_path),
+        Path(config.dest_path),
     )
 
 
-def status_cmd(args: argparse.Namespace) -> None:
-    print_args(args)
+def status_cmd(config: Config) -> None:
     status(
-        Path(args.src_path),
-        Path(args.dest_path),
-        args.include_path,
+        Path(config.src_path),
+        Path(config.dest_path),
+        config.include,
     )
 
 
 def main() -> None:
+
     parser = argparse.ArgumentParser(
         description="Simple CLI like GitHub with push and pull commands"
     )
@@ -48,14 +73,13 @@ def main() -> None:
     push_parser.add_argument(
         "src_path",
         nargs="?",
-        default=".",
         help="Source path of the repository (default: current directory)",
     )
     push_parser.add_argument(
-        "--dest_path", "-d", required=True, help="Destination path of the repository"
+        "--dest_path", "-d", help="Destination path of the repository"
     )
     push_parser.add_argument(
-        "--include_path",
+        "--include",
         "-i",
         nargs="+",
         default=[],
@@ -69,14 +93,13 @@ def main() -> None:
     pull_parser.add_argument(
         "src_path",
         nargs="?",
-        default=".",
         help="Source path of the repository (default: current directory)",
     )
     pull_parser.add_argument(
-        "--dest_path", "-d", required=True, help="Destination path of the repository"
+        "--dest_path", "-d", help="Destination path of the repository"
     )
     pull_parser.add_argument(
-        "--include_path",
+        "--include",
         "-i",
         nargs="+",
         default=[],
@@ -90,14 +113,13 @@ def main() -> None:
     status_parser.add_argument(
         "src_path",
         nargs="?",
-        default=".",
         help="Source path of the repository (default: current directory)",
     )
     status_parser.add_argument(
-        "--dest_path", "-d", required=True, help="Destination path of the repository"
+        "--dest_path", "-d", help="Destination path of the repository"
     )
     status_parser.add_argument(
-        "--include_path",
+        "--include",
         "-i",
         nargs="+",
         default=[],
@@ -110,7 +132,15 @@ def main() -> None:
         sys.exit(1)
 
     args = parser.parse_args()
-    args.func(args)
+
+    src_path = Path(args.src_path) if args.src_path else Path.cwd()
+    toml_data = _load_toml(src_path)
+
+    config = Config(**toml_data)
+    config.update_from_args(args)
+    config.check()
+
+    args.func(config)
 
 
 if __name__ == "__main__":
