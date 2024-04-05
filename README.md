@@ -63,7 +63,7 @@ local_lfs status -d path/to/lfs_dest_folder
 
 ## Pyproject.toml
 
-You can also specify all arguments in the pyproject.toml of your project:
+You can also specify all arguments in the `pyproject.toml` file of your project:
 
 ```toml
 [tool.local_lfs]
