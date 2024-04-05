@@ -1,13 +1,13 @@
 import argparse
-
-from .core import push, pull, status
 from pathlib import Path
-
 from typing import Any
+
 from .config import load_config
+from .core import pull, push, status
 
 
 def main() -> None:
+    
     parser = argparse.ArgumentParser(
         description="Local LFS, a simple local git-lfs alternative"
     )
@@ -76,6 +76,5 @@ def _add_common_arguments(parser: argparse.ArgumentParser) -> None:
         "--include",
         "-i",
         nargs="+",
-        default=[],
         help="Include paths for the operation (Optional, default: none)",
     )
