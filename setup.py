@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="local_lfs",
@@ -10,5 +10,7 @@ setup(
             "local_lfs = local_lfs.__main__:main",
         ],
     },
-    install_requires=[],
+    install_requires=[
+        "toml",
+    ],
 )
