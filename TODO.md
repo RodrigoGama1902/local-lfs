@@ -1,5 +1,6 @@
 # High Priority
 
+- [ ] Allow to specify files to not ble included ex: `*.pyc`
 - [ ] The current tests are testing the CLI and execution commands, this should be separated
     - [ ] CLI tests
     - [ ] Execution tests
